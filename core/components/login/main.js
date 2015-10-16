@@ -18,15 +18,16 @@ angular.module('mm.core.login', [])
 
     $stateProvider
 
-    .state('mm_login.site', { 
-    url: '/site', 
-    templateUrl: 'core/components/login/templates/site.html',
-    controller: 'mmLoginSiteCtrl',
-    onEnter: function($state) {
-        $state.go('mm_login.credentials', {siteurl: 'http://taramandala.net'});
-    }
-})
-
+    .state('mm_login', {
+        url: '/mm_login',
+        abstract: true,
+        templateUrl: 'core/components/login/templates/base.html',
+        cache: false,   // Disable caching to force controller reload.
+        onEnter: function($ionicHistory) {
+            // Ensure that there is no history stack when getting here.
+            $ionicHistory.clearHistory();
+        }
+    })
 
     .state('mm_login.init', {
         url: '/init',
@@ -35,20 +36,25 @@ angular.module('mm.core.login', [])
         cache: false // Disable caching to force controller reload.
     })
 
-    .state('mm_login.site', { 
-    url: '/site', 
-    templateUrl: 'core/components/login/templates/site.html',
-    controller: 'mmLoginSiteCtrl',
-    onEnter: function($state) {
-        $state.go('mm_login.credentials', {siteurl: 'http://taramandala.net'});
-    }
-})
-
+    .state('mm_login.sites', {
+        url: '/sites',
+        templateUrl: 'core/components/login/templates/sites.html',
+        controller: 'mmLoginSitesCtrl',
+        onEnter: function($state, $mmSitesManager) {
+            // Skip this page if there are no sites yet.
+            $mmSitesManager.hasNoSites().then(function() {
+                $state.go('mm_login.site');
+            });
+        }
+    })
 
     .state('mm_login.site', {
         url: '/site',
         templateUrl: 'core/components/login/templates/site.html',
         controller: 'mmLoginSiteCtrl'
+        onEnter: function($state) {
+        $state.go('mm_login.credentials', {siteurl: 'http://taramandala.net'});
+
     })
 
     .state('mm_login.credentials', {
